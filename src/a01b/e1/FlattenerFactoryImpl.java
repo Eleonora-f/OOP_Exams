@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FlattenerFactoryImpl implements FlattenerFactory {
-
+    // FATTO
     @Override
     public Flattener<Integer, Integer> sumEach() {
         return new Flattener<Integer, Integer>() {
