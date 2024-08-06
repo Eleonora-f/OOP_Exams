@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class CursorHelpersImpl implements CursorHelpers {
-
+    // DA FARE
     @Override
     public <X> Cursor<X> fromNonEmptyList(List<X> list) {
         if (list.isEmpty()) {
