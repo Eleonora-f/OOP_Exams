@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class ParserFactoryImpl implements ParserFactory {
-
+    // FATTO
     @Override
     public <X> Parser<X> fromFinitePossibilities(Set<List<X>> acceptedSequences) {
         return new Parser<X>() {
