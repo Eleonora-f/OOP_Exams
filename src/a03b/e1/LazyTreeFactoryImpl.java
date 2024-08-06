@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 public class LazyTreeFactoryImpl implements LazyTreeFactory {
-
+    // FATTO
     @Override
     public <X> LazyTree<X> constantInfinite(X value) {
         return new LazyTree<X>() {
