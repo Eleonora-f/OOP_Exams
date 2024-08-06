@@ -2,7 +2,7 @@ package a02b.e2;
 
 import java.util.*;
 
-//DA FINIRE, E' CONFUSO
+//DA FINIRE, E' CONFUSO!
 public class LogicImpl implements Logic {
 
     private int size;
