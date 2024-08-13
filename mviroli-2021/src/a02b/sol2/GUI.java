@@ -3,72 +3,53 @@ package a02b.sol2;
 import javax.swing.*;
 import java.util.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionListener;
 
 public class GUI extends JFrame {
     
-    private final Map<JButton, Pair<Integer,Integer>> cells = new HashMap<>();
-    private Logic logic;
-    private boolean toInit = false;
+    private static final long serialVersionUID = -6218820567019985015L;
+    private final Map<Pair<Integer,Integer>,JButton> cells = new HashMap<>();
+    private final Logics logics;
     
     public GUI(int size) {
-        this.logic = new LogicImpl(size);
+        this.logics = new LogicsImpl(size);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setSize(100*size, 100*size);
+        this.setSize(50*size, 50*size);
         
-        JPanel main = new JPanel(new BorderLayout());
-        JPanel grid = new JPanel(new GridLayout(size,size));
-        main.add(BorderLayout.CENTER, grid);
-        JButton check = new JButton("Check > Restart");
-        main.add(BorderLayout.SOUTH, check);
-        this.getContentPane().add(main);
-
-        check.addActionListener(e -> {
-            if (toInit){
-                this.logic.init();
-                this.clear();
-                toInit = false;
-            } else {
-                var res = this.logic.checkThree();
-                System.out.println(res);
-                res.ifPresent(set -> {
-                    this.disable(set);
-                    toInit = true;
-                });
-            }
-        });
+        JPanel panel = new JPanel(new GridLayout(size,size));
+        this.getContentPane().add(panel);
         
-        ActionListener al = new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-        	    var button = (JButton)e.getSource();
-                var position = cells.get(button);
-                button.setText(logic.hit(position.getX(), position.getY()) ? "*" : " ");
-            }
+        ActionListener al = e -> {
+        	logics.toNext();
+        	if (logics.isOver()) {
+        		System.exit(0);
+        	} else {
+        		this.updateCells();
+        	}
         };
                 
         for (int i=0; i<size; i++){
             for (int j=0; j<size; j++){
+            	var pos = new Pair<>(j,i);
                 final JButton jb = new JButton(" ");
-                this.cells.put(jb, new Pair<>(j,i));
+                this.cells.put(pos,jb);
                 jb.addActionListener(al);
-                grid.add(jb);
+                panel.add(jb);
             }
         }
+        this.updateCells();
         this.setVisible(true);
-    }   
-    
-    private void clear() {
-        this.cells.keySet().forEach(b -> {
-            b.setText(" ");
-            b.setEnabled(true);
-        });
     }
 
-    private void disable(Set<Pair<Integer, Integer>> set) {
-        for (var entry: cells.entrySet()){
-            if (set.contains(entry.getValue())){
-                entry.getKey().setEnabled(false);
-            }
-        }
-    }
+	private void updateCells() {
+    	var p = logics.getNext();
+		for (var entry: this.cells.entrySet()) {
+			var optDirection = logics.changeDirectionToLeftAt(entry.getKey().getX(),entry.getKey().getY());
+			entry.getValue().setText(optDirection.map(b -> b ? "L" : "R").orElse(" "));
+			if (entry.getKey().equals(p)) {
+				entry.getValue().setText("*");
+			}
+		}
+	}
+    
 }

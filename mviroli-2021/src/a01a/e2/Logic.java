@@ -1,12 +1,12 @@
 package a01a.e2;
 
-import java.util.List;
+import java.util.*;
 
 public interface Logic {
 
-    void hit(Pair<Integer, Integer> position);
+    void click(Pair<Integer, Integer> position);
 
-    List<Pair<Integer, Integer>> getStars();
+    Map<Pair<Integer, Integer>, Integer> getElem();
 
-    boolean isOver();
+    boolean isOVer();
 }

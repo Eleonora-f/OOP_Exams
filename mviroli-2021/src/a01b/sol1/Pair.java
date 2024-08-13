@@ -1,63 +1,53 @@
 package a01b.sol1;
 
+import java.util.Objects;
+
 /*
- * A standard generic Pair<X,Y>, with getters, hashCode, equals, and toString well implemented. 
+ * A standard generic Pair<E1,E2>, with getters, hashCode, equals, and toString well implemented. 
  */
 
-public class Pair<X,Y> {
+public class Pair<E1,E2> {
 	
-	private final X x;
-	private final Y y;
+	private final E1 e1;
+	private final E2 e2;
 	
-	public Pair(X x, Y y) {
+	public Pair(E1 x, E2 y) {
 		super();
-		this.x = x;
-		this.y = y;
+		this.e1 = x;
+		this.e2 = y;
 	}
 
-	public X getX() {
-		return x;
+	public E1 get1() {
+		return e1;
 	}
 
-	public Y getY() {
-		return y;
+	public E2 get2() {
+		return e2;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((x == null) ? 0 : x.hashCode());
-		result = prime * result + ((y == null) ? 0 : y.hashCode());
-		return result;
+		return Objects.hash(e1, e2);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Pair other = (Pair) obj;
-		if (x == null) {
-			if (other.x != null)
-				return false;
-		} else if (!x.equals(other.x))
-			return false;
-		if (y == null) {
-			if (other.y != null)
-				return false;
-		} else if (!y.equals(other.y))
-			return false;
-		return true;
+		return Objects.equals(e1, other.e1) && Objects.equals(e2, other.e2);
 	}
 
 	@Override
 	public String toString() {
-		return "Pair [x=" + x + ", y=" + y + "]";
+		return "Pair [e1=" + e1 + ", e2=" + e2 + "]";
 	}
 	
 	

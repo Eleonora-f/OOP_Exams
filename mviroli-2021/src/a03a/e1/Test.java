@@ -1,122 +1,129 @@
 package a03a.e1;
 
 import static org.junit.Assert.*;
-import java.util.*;
 
-/**
- * Si consulti la documentazione della interfaccia ParserFactory, che modella
- * una factory per Parser, che a sua volta modella un riconoscitore di certe
- * sequenze (parser)
- * di elementi estratte da un iteratore.
- * 
- * Il commento alle interfacce fornite, e i metodi di test qui sotto
- * costituiscono la necessaria
- * spiegazione del problema.
- * 
- * Sono considerati opzionali ai fini della possibilità di correggere
- * l'esercizio, ma concorrono comunque al raggiungimento della totalità del
- * punteggio:
- * - implementazione del quinto metodo factory (ossia, a scelta se ne realizzino
- * 4,
- * ma considerando il primo metodo fromFinitePossibilities() come obbligatorio)
- * - elementi di qualità come concisione del codice, rimozione di ripetizioni,
- * uso parsimonioso della memoria
- *
- * Si tolga il commento dal metodo init.
- * 
- * Indicazioni di punteggio:
- * - correttezza della parte obbligatoria: 10 punti
- * - correttezza della parte opzionale: 4 punti
- * - qualità della soluzione: 3 punti
- * - bug di programmazione, o violazione di regole base di programmazione Java,
- * comportano decurtamento del punteggio
- * complessivo, anche in caso di bonus
- */
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class Test {
 
-	private ParserFactory factory;
+	/*
+	 * Implementare l'interfaccia DecisionChainFactory come indicato nel metodo
+	 * initFactory qui sotto. Realizza una factory per dei DecisionChain, ossia
+	 * oggetti che preso un input devono decidere se ritornare subito un certo output, 
+	 * oppure richiedere la delegazione della decisone ad un altro DecisionChain (e a quale)
+	 * -- esercizio che illustra il pattern chiamato "Chain of Responsibility". 
+	 * 
+	 * Il commento alle interfacce fornite, e i metodi di test qui sotto
+	 * costituiscono la necessaria spiegazione del problema.
+	 * 
+	 * Sono considerati opzionali ai fini della possibilità di correggere
+	 * l'esercizio, ma concorrono comunque al raggiungimento della totalità del
+	 * punteggio: 
+	 * 
+	 * - implementazione dei cinque metodi nella factory (ossia, nella parte obbligatoria è sufficiente 
+	 * implementarne 4 a piacimento) 
+	 * 
+	 * - la buona progettazione della soluzione, evitando ripetizioni
+	 * 
+	 * Si tolga il commento dal metodo initFactory.
+	 * 
+	 * Indicazioni di punteggio: 
+	 * 
+	 * - correttezza della parte obbligatoria: 10 punti (2+2+3+3 per i metodi di factory necessari) 
+	 * 
+	 * - correttezza della parte opzionale: 3 punti (metodo ulteriore)
+	 * 
+	 * - qualità della soluzione: 4 punti (per soluzione che minimizza le ripetizioni e che segue buone prassi di programmazione)
+	 * 
+	 */
 
+	private DecisionChainFactory factory = null;
+	
 	@org.junit.Before
-	public void init() {
-		this.factory = new ParserFactoryImpl();
+	public void initFactory() {
+		// this.factory = new DecisionChainFactoryImpl();
+	}
+	
+	@org.junit.Test
+	public void testOneResult() {
+		DecisionChain<Integer,Integer> dt = this.factory.oneResult(10);
+		// torna sempre 10, e subito
+		assertEquals(Optional.of(10), dt.result(5));
+		assertEquals(Optional.of(10), dt.result(-1));
+		assertEquals(Optional.of(10), dt.result(11));
+		assertEquals(10, dt.finalResult(-2).intValue());
+	}
+	
+	@org.junit.Test
+	public void testSimpleTwoWay() {
+		DecisionChain<Integer,Integer> dt = this.factory.simpleTwoWay(x -> x > 0, +1, -1);
+		// alla fine della catena di decisioni si produce +1 ricevendo un positivo, -1 altrimenti
+		assertEquals(1, dt.finalResult(100).intValue());
+		assertEquals(-1, dt.finalResult(-20).intValue());
+		// ...ma la cosa è sempre decisa passando ad un altro decider, quindi il risultato diretto è "empty"
+		assertEquals(Optional.empty(), dt.result(10));
+		assertEquals(Optional.empty(), dt.result(-10));
+		// ad esempio ricevendo 10 si delega ad un dt2 che mi darà sempre 1, e viceversa su dt3
+		var dt2 = dt.next(10);
+		assertEquals(Optional.of(1), dt2.result(10));
+		var dt3 = dt.next(-10);
+		assertEquals(Optional.of(-1), dt3.result(-10));
+	}
+	
+	@org.junit.Test
+	public void testEnumerationLike() {
+		var map = List.of(new Pair<>("a",1), new Pair<>("b",2), new Pair<>("c",3));
+		// alla fine della catena si produce 1 ricevendo "a", 2 ricevendo "b"... e -1 negli altri casi
+		DecisionChain<String,Integer> dt = this.factory.enumerationLike(map,-1);
+		assertEquals(1, dt.finalResult("a").intValue());
+		assertEquals(2, dt.finalResult("b").intValue());
+		assertEquals(3, dt.finalResult("c").intValue());
+		assertEquals(-1, dt.finalResult("ddd").intValue());
+		// ma dt risponde subito per "a", mentre per "b" delega al prossimo decider dt2
+		assertEquals(Optional.of(1), dt.result("a"));
+		assertEquals(Optional.empty(), dt.result("b"));
+		var dt2 = dt.next("b");
+		assertEquals(2, dt2.finalResult("b").intValue());
+		assertEquals(3, dt2.finalResult("c").intValue());
+		assertEquals(-1, dt2.finalResult("ddd").intValue());
+		assertEquals(-1, dt2.finalResult("a").intValue());
+		assertEquals(Optional.of(3), dt.next("c").next("c").result("c"));
+	}
+	
+	@org.junit.Test
+	public void testTwoWay() {
+		DecisionChain<String,Integer> dt1 = this.factory.oneResult(0);
+		var map = List.of(new Pair<>("a",1), new Pair<>("b",2), new Pair<>("c",3));
+		DecisionChain<String,Integer> dt2 = this.factory.enumerationLike(map,-1);
+		// se la stringa è vuota, dt delega a dt1, altrimenti a dt2
+		DecisionChain<String,Integer> dt = this.factory.twoWay(String::isEmpty, dt1, dt2);
+		assertEquals(0, dt.finalResult("").intValue());
+		assertEquals(1, dt.finalResult("a").intValue());
+		assertEquals(2, dt.finalResult("b").intValue());
+		assertEquals(3, dt.finalResult("c").intValue());
+		assertEquals(-1, dt.finalResult("ddd").intValue());
+		var dt3 = dt.next("");
+		// dt3 si comporta come dt1...
+		assertEquals(Optional.of(0), dt3.result(""));
+	}
+	
+	@org.junit.Test
+	public void testSwitchChain() {
+		var chain = List.<Pair<Predicate<Integer>,String>>of(
+				new Pair<>(x -> x<10, "<10"), // se x<10 decide e torna "<10", altrimenti delega...
+				new Pair<>(x -> x<20, "<20"), // se x<20 decide e torna "<20", altrimenti delega...
+				new Pair<>(x -> x<30, "<30"), // ...
+				new Pair<>(x -> x<40, "<40"));
+		var dt = this.factory.switchChain(chain, "bigger"); // se nessuno ha deciso torna "bigger"
+		assertEquals("<10", dt.finalResult(0));
+		assertEquals("<20", dt.finalResult(15));
+		assertEquals("<30", dt.finalResult(21));
+		assertEquals("<40", dt.finalResult(39));
+		assertEquals("bigger", dt.finalResult(100));
+		assertEquals(Optional.empty(), dt.result(11));
 	}
 
-	@org.junit.Test
-	public void testFinitePossibilities() {
-		// un parser che accetta solo (10,20,30,50) o (10,20,50) o (50)
-		var parser = this.factory.fromFinitePossibilities(Set.of(
-				List.of(10, 20, 30, 50),
-				List.of(10, 20, 50),
-				List.of(50)));
-		assertTrue(parser.accept(List.of(10, 20, 30, 50).iterator()));
-		assertTrue(parser.accept(List.of(10, 20, 50).iterator()));
-		assertTrue(parser.accept(List.of(50).iterator()));
-		assertFalse(parser.accept(List.of(10, 20).iterator()));
-		assertFalse(parser.accept(List.of(10, 20, 30, 50, 60).iterator()));
-		assertFalse(parser.accept(List.<Integer>of().iterator()));
-	}
-
-	@org.junit.Test
-	public void testRecursive() {
-		// un parser che se riceve 1 poi accetta 2,3,4, se riceve 2 poi accetta 3,4; e
-		// nient'altro
-		var parser = this.factory.recursive(
-				x -> x == 1 ? Optional.of(this.factory.fromFinitePossibilities(Set.of(List.of(2, 3, 4))))
-						: x == 2 ? Optional.of(this.factory.fromFinitePossibilities(Set.of(List.of(3, 4))))
-								: Optional.empty(),
-				false);
-		assertTrue(parser.accept(List.of(1, 2, 3, 4).iterator()));
-		assertTrue(parser.accept(List.of(2, 3, 4).iterator()));
-		assertFalse(parser.accept(List.of(1).iterator()));
-		assertFalse(parser.accept(List.of(1, 2).iterator()));
-		assertFalse(parser.accept(List.<Integer>of().iterator()));
-	}
-
-	@org.junit.Test
-	public void testGraph() {
-		// un parser che vuole un 1, dopo un 1 ancora un 1 o un2, dopo un 2 vuole un 2 o
-		// un 3, e quindi il 3 deve essere l'ultimo
-		var parser = this.factory.fromGraph(
-				1,
-				Set.of(
-						new Pair<>(1, 1),
-						new Pair<>(1, 2),
-						new Pair<>(2, 2),
-						new Pair<>(2, 3)),
-				Set.of(3));
-		assertTrue(parser.accept(List.of(1, 1, 1, 2, 2, 2, 3).iterator()));
-		assertTrue(parser.accept(List.of(2, 2, 2, 2, 3).iterator()));
-		assertFalse(parser.accept(List.of(1, 1, 1, 3).iterator()));
-		assertFalse(parser.accept(List.of(1, 1, 1, 2, 2, 3, 3).iterator()));
-		assertFalse(parser.accept(List.of(1, 2).iterator()));
-		assertFalse(parser.accept(List.<Integer>of().iterator()));
-	}
-
-	@org.junit.Test
-	public void testIteration() {
-		// un parser che vuole 0, e poi l'incremento del precedente (1,2,...) fino a
-		// raggiungere il 5 escluso
-		var parser = this.factory.fromIteration(0, i -> Optional.of(i + 1).filter(j -> j < 5));
-		assertTrue(parser.accept(List.of(0, 1, 2, 3, 4).iterator()));
-		assertFalse(parser.accept(List.of(0, 1, 2, 3, 4, 5).iterator()));
-		assertFalse(parser.accept(List.of(0, 1, 2, 3).iterator()));
-	}
-
-	@org.junit.Test
-	public void testWithInitial() {
-		// un parser che riceve 1, e poi si comporta come il parser di
-		// testFinitePossibilities
-		var parser = this.factory.fromParserWithInitial(1, this.factory.fromFinitePossibilities(Set.of(
-				List.of(10, 20, 30, 50),
-				List.of(10, 20, 50),
-				List.of(50))));
-		assertTrue(parser.accept(List.of(1, 10, 20, 30, 50).iterator()));
-		assertTrue(parser.accept(List.of(1, 10, 20, 50).iterator()));
-		assertTrue(parser.accept(List.of(1, 50).iterator()));
-		assertFalse(parser.accept(List.of(10, 20).iterator()));
-		assertFalse(parser.accept(List.of(1, 1, 10, 20, 50).iterator()));
-		assertFalse(parser.accept(List.of(10, 20, 30, 50).iterator()));
-		assertFalse(parser.accept(List.<Integer>of().iterator()));
-	}
+	
 }

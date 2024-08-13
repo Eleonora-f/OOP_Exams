@@ -1,59 +1,63 @@
 package a01a.e2;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
+import java.util.*;
 
 public class LogicImpl implements Logic {
 
-    private final int size;
-    private List<Pair<Integer, Integer>> stars = new LinkedList<>();
-    private int pressioni = 0;
-    private List<Pair<Integer, Integer>> lastStars = new LinkedList<>();
+    private int size;
+    boolean one = true;
+    private Pair<Integer, Integer> lastOne;
+    Map<Pair<Integer, Integer>, Integer> elem = new HashMap<>();
 
     public LogicImpl(int size) {
         this.size = size;
     }
 
     @Override
-    public void hit(Pair<Integer, Integer> position) {
-        if (pressioni < 3 && !stars.contains(position)) {
-            stars.add(position);
-            pressioni++;
-            lastStars.add(position);
-        } else if (stars.contains(position)) {
-            stars.remove(position);
-            pressioni = 0;
-            lastStars.clear();
+    public void click(Pair<Integer, Integer> position) {
+        if (one && !elem.containsKey(position)) {
+            elem.put(position, 1);
+            lastOne = position;
+            one = false;
+        } else {
+            if (!elem.containsKey(position)) {
+                for (var el : getRectangle(position, lastOne)) {
+                    elem.put(el, 0);
+                }
+                elem.replace(lastOne, 0);
+                one = true;
+                lastOne = null;
+            }
         }
     }
 
-    @Override
-    public List<Pair<Integer, Integer>> getStars() {
-        return this.stars;
-    }
+    public Set<Pair<Integer, Integer>> getRectangle(Pair<Integer, Integer> p1, Pair<Integer, Integer> p2) {
+        int minRow = Math.min(p1.getX(), p2.getX());
+        int maxRow = Math.max(p1.getX(), p2.getX());
+        int minCol = Math.min(p1.getY(), p2.getY());
+        int maxCol = Math.max(p1.getY(), p2.getY());
 
-    @Override
-    public boolean isOver() {
-        return pressioni == 3 && isDiagonal();
-    }
-
-    private boolean isAdjacent(Pair<Integer, Integer> curr, Pair<Integer, Integer> p) {
-        return Math.abs(curr.getX() - p.getX()) == 1 && Math.abs(curr.getY() - p.getY()) == 1;
-    }
-
-    private boolean isDiagonal() {
-        for (var p : lastStars) {
-            int count = 0;
-            for (var e : lastStars) {
-                if (!e.equals(p) && isAdjacent(p, e)) {
-                    count++;
+        Set<Pair<Integer, Integer>> list = new HashSet<>();
+        for (int x = minRow; x <= maxRow; x++) {
+            for (int y = minCol; y <= maxCol; y++) {
+                var p = new Pair<>(x, y);
+                if (!elem.containsKey(p)) {
+                    list.add(p);
                 }
             }
-            if (count == 2) {
-                return true;
-            }
         }
-        return false;
+        return list;
+    }
+
+    @Override
+    public boolean isOVer() {
+        return this.elem.size() == (size * size);
+    }
+
+    @Override
+    public Map<Pair<Integer, Integer>, Integer> getElem() {
+        return this.elem;
     }
 
 }

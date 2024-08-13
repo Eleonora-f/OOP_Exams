@@ -2,59 +2,37 @@ package a02b.e2;
 
 import javax.swing.*;
 import java.util.*;
+import java.util.List;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionListener;
 
 public class GUI extends JFrame {
-
-    private final Map<JButton, Pair<Integer, Integer>> cells = new HashMap<>();
-    private Logic logic;
-
+    
+    private static final long serialVersionUID = -6218820567019985015L;
+    private final List<JButton> cells = new ArrayList<>();
+    private int counter = 0;
+    
     public GUI(int size) {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        this.setSize(100 * size, 100 * size);
-
-        this.logic = new LogicImpl(size);
-
-        JPanel main = new JPanel(new BorderLayout());
-        JPanel panel = new JPanel(new GridLayout(size, size));
-
-        JButton checkButton = new JButton("Check > Restart");
-        main.add(BorderLayout.CENTER, panel);
-        main.add(BorderLayout.SOUTH, checkButton);
-        this.getContentPane().add(main);
-
-        checkButton.addActionListener(e -> {
-            logic.checkButton();
-        });
-
-        ActionListener al = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                var button = (JButton) e.getSource();
-                var position = cells.get(button);
-                logic.hit(position);
-                updateView();
-            }
+        this.setSize(50*size, 50*size);
+        
+        JPanel panel = new JPanel(new GridLayout(size,size));
+        this.getContentPane().add(panel);
+        
+        ActionListener al = e -> {
+        	this.cells.get(counter).setText(String.valueOf(counter++));
         };
-
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+                
+        for (int i=0; i<size; i++){
+            for (int j=0; j<size; j++){
+            	var pos = new Pair<>(j,i);
                 final JButton jb = new JButton(" ");
-                this.cells.put(jb, new Pair<>(i, j));
+                this.cells.add(jb);
                 jb.addActionListener(al);
                 panel.add(jb);
             }
         }
-        this.updateView();
         this.setVisible(true);
     }
-
-    private void updateView() {
-        var stars = this.logic.getStars();
-        var enabled = this.logic.getEnabled();
-        cells.forEach((b, p) -> {
-            b.setText(stars.contains(p) ? "*" : " ");
-            b.setEnabled(enabled.contains(p) ? false : true);
-        });
-    }
+    
 }

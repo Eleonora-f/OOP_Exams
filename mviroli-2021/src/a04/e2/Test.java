@@ -3,41 +3,36 @@ package a04.e2;
 public class Test {
 
     /*
-     * Scopo di questo esercizio è realizzare una GUI con l'aspetto mostrato nell'immagine fig1.png, 
-     * la cui logica permette di giocare una sorta di partita a scacchi, dove il giocatore umano muove
-     * una torre ("R", ossia rook) mentre il computer muove un re ("K", ossia king) in modo random 
-     * (ma mangiando la torre se ci riesce). 
+     * Scopo di questo esercizio è realizzare una GUI con l'aspetto mostrato nell'immagine fig1.png, fornita, 
+     * che realizza la possibilità di selezionare via via caselle adiacenti per identificare una espressione
+     * matematica della qualse si vuole calcolare il risultato, come segue:
+     * 0 - alla partenza si riempia (probabilisticamente) la griglia al 50% di numeri e al 50% di operatori: i numeri 
+     * siano fra 0 e 9 inclusi, gli operatori siano +, - e *
+     * 1 - l'utente clicka la prima volta la cella che contiene un numero
+     * 2 - da quel punto in poi clicka celle adiacenti alla precedente (orizzontalmente o verticalmente), che contengono
+     * alternando un operatore, un numero, un operatore, un numero, e così via 
+     * 3 - ogni volta che un cella corretta è clickata viene deselezionata
+     * 4 - quando si è clickato un numero si avrà sempre individuato una espressione matematica compiuta,
+     * quindi sarà possibile premere il pulsante "Quit", che causerà la chiusura dell'applicazione e la stampa
+     * su console del risultato della valutazione dell'espressione.
      * 
-     * L'applicazione si comporti complessivamente come segue:
-     * 1) all'inizio si posizionano R e K in modo random su due celle diverse
-     * 2) l'utente clicka una posizione valida d'arrivo per la sua torre R
-     * -- se è valida (ossia corrisponde ad un movimento in orizzontale o verticale di quante caselle si vuole,
-     *    ma senza saltare oltre il re) allora la torre si trasferisce lì
-     * -- se la torre si mette al posto del re, ossia lo mangia, si scriva "Vittoria" su console e si ricomincia 
-     *    la partita d'accapo, ossia dal punto 1)
-     * 3) mossa la torre, il computer muove subito il re K, come segue:
-     * -- le sue mosse possibili sono verso una casella adiacente in orizzontale, verticale o diagonale
-     * -- se il re può mangiare la torre muovendosi, allora la mangia: in tal caso si chiuda l'applicazione
-     * -- altrimenti il re si muove in modo random in una delle celle consentite
-     * 4) si torna al punto 2
+     * Se la sequenza dei pulsanti premuti era ad esempio 7,-,4,*,5, il risultato sarà (7-4)*5 = 15: ossia
+     * si assuma che il calcola associa a sinistra -- e quindi si può calcolare l'espressione "mano a mano".
      * 
-     * Sono considerati opzionali ai fini della possibilità di correggere l'esercizio, ma concorrono comunque al raggiungimento 
-     * della totalità del punteggio:
-     * - scorporamento di tutti gli aspetti che non sono di view in una interfaccia+classe esterna
-     * - controllo che la torre non salti sopra il re: ossia, va bene anche se si accetta che la torre salti 
-     *   oltre il re, contrariamente a quanto avviene negli scacchi
-     * 
+     * Ai fini della possibilità di correggere l'esercizio, anche se concorrono comunque al raggiungimento 
+     * della totalità del punteggio, SONO CONSIDERATI OPZIONALI I SEGUENTI ASPETTI:
+     * - scorporamento via delegazione di tutti gli aspetti che non sono di view in una interfaccia+classe esterna
+     * - controllo della adiacenza dei pulsanti premuti
+     *  
      * La classe GUI fornita, da modificare, include codice che potrebbe essere utile per la soluzione.
      * 
      * Indicazioni di punteggio:
-	 * - correttezza della parte obbligatoria: 10 punti
-	 * - qualità della parte opzionale: 3 punti
-	 * - correttezza della parte opzionale: 4 punti
-     * - bug di programmazione, o violazione di regole base di programmazione Java, comportano decurtamento 
-     *   del punteggio complessivo, anche in caso di bonus
+	 * - correttezza della parte obbligatoria: 9 punti
+	 * - qualità della parte opzionale: 5 punti
+	 * - correttezza della parte opzionale: 3 punti
      */
 
     public static void main(String[] args) throws java.io.IOException {
-        new GUI(4); 
+        new GUI(5); 
     }
 }
