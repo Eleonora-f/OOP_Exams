@@ -1,7 +1,6 @@
 package a01b.e1;
 
 import static org.junit.Assert.*;
-
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
