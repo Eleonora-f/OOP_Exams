@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 public class GUI extends JFrame {
 
     private static final long serialVersionUID = -6218820567019985015L;
-    private final List<JButton> cells = new ArrayList<>();
+    private final Map<JButton, Pair<Integer, Integer>> cells = new HashMap<>();
     private final Logic logic;
 
     public GUI(int size) {
@@ -22,19 +22,39 @@ public class GUI extends JFrame {
 
         ActionListener al = e -> {
             var button = (JButton) e.getSource();
-            button.setText("" + cells.indexOf(button));
-            button.setEnabled(false);
+            var position = cells.get(button);
+
+            logic.click(position);
+
+            updateView();
+
+            if (logic.isOver()) {
+                cells.forEach((b, p) -> {
+                    b.setEnabled(false);
+                });
+            }
         };
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 final JButton jb = new JButton(" ");
-                this.cells.add(jb);
+                this.cells.put(jb, new Pair<Integer, Integer>(i, j));
                 jb.addActionListener(al);
                 panel.add(jb);
             }
         }
+        this.updateView();
         this.setVisible(true);
+
+    }
+
+    private void updateView() {
+        var elem = this.logic.getElem();
+        cells.forEach((b, p) -> {
+            b.setText(elem.containsKey(p)
+                    ? (elem.get(p).equals(1) ? "1" : elem.get(p).equals(2) ? "2" : elem.get(p).equals(3) ? "3" : "*")
+                    : " ");
+        });
     }
 
 }
