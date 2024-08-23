@@ -1,5 +1,6 @@
 package a01b.e1;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -14,10 +15,7 @@ public class EventSequenceProducerHelpersImpl implements EventSequenceProducerHe
 
             @Override
             public Pair<Double, E> getNext() throws NoSuchElementException {
-                if (iterator.hasNext()) {
-                    return iterator.next();
-                }
-                return null;
+                return iterator.next();
             }
 
         };
@@ -25,20 +23,77 @@ public class EventSequenceProducerHelpersImpl implements EventSequenceProducerHe
 
     @Override
     public <E> List<E> window(EventSequenceProducer<E> sequence, double fromTime, double toTime) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'window'");
+        List<E> list = new ArrayList<>();
+        try {
+            while (true) {
+                Pair<Double, E> event = sequence.getNext();
+
+                if (event.get1() >= fromTime && event.get1() <= toTime) {
+                    list.add(event.get2());
+                }
+            }
+        } catch (NoSuchElementException e) {
+
+        }
+
+        return list;
     }
 
     @Override
     public <E> Iterable<E> asEventContentIterable(EventSequenceProducer<E> sequence) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asEventContentIterable'");
+
+        return new Iterable<E>() {
+
+            @Override
+            public Iterator<E> iterator() {
+                return new Iterator<E>() {
+                    Pair<Double, E> nextEvent = null;
+                    private boolean hasMore = true;
+
+                    @Override
+                    public boolean hasNext() {
+                        if (nextEvent == null) {
+                            try {
+                                nextEvent = sequence.getNext();
+                            } catch (NoSuchElementException e) {
+                                // hasMore = false;
+                            }
+                        }
+                        return nextEvent != null;
+                    }
+
+                    @Override
+                    public E next() {
+                        if (!hasNext()) {
+                            throw new NoSuchElementException();
+                        }
+
+                        E eventContent = nextEvent.get2();
+                        nextEvent = null;
+                        return eventContent;
+                    }
+
+                };
+            }
+
+        };
+
     }
 
     @Override
     public <E> Optional<Pair<Double, E>> nextAt(EventSequenceProducer<E> sequence, double time) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'nextAt'");
+
+        try {
+            while (true) {
+                Pair<Double, E> event = sequence.getNext();
+                if (event.get1() > time) {
+                    return Optional.of(event);
+                }
+            }
+
+        } catch (NoSuchElementException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
