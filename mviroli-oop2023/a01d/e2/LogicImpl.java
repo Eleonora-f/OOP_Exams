@@ -61,7 +61,7 @@ public class LogicImpl implements Logic {
 
     @Override
     public void click(Pair<Integer, Integer> pos) {
-        System.out.println("POS = " + pos);
+        // System.out.println("POS = " + pos);
         if (stars.isEmpty()) {
             addQuad(pos);
         } else {
