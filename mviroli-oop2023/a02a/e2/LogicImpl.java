@@ -44,6 +44,7 @@ public class LogicImpl implements Logic {
         if (lastsFour.size() < 4) {
             return false;
         }
+        // creata lista temporanea list che contiene i quattro elementi più recenti
         List<Pair<Integer, Integer>> list = new ArrayList<>(lastsFour);
 
         Pair<Integer, Integer> p1 = list.get(0);
@@ -56,9 +57,10 @@ public class LogicImpl implements Logic {
 
     private boolean isSquare(Pair<Integer, Integer> p1, Pair<Integer, Integer> p2, Pair<Integer, Integer> p3,
             Pair<Integer, Integer> p4) {
-        Set<Integer> xCoords = new HashSet<>();
+        Set<Integer> xCoords = new HashSet<>(); // inizializzazione
         Set<Integer> yCoords = new HashSet<>();
-
+        // Le coordinate X e Y di ciascuno dei quattro punti vengono aggiunte ai
+        // rispettivi insiemi
         xCoords.add(p1.getX());
         xCoords.add(p2.getX());
         xCoords.add(p3.getX());
@@ -69,8 +71,8 @@ public class LogicImpl implements Logic {
         yCoords.add(p3.getY());
         yCoords.add(p4.getY());
 
-        // Controlla se ci sono esattamente 2 valori distinti di X e 2 valori distinti
-        // di Y
+        // Se i quattro punti formano un quadrato, dovrebbero esserci esattamente due
+        // valori distinti di X e due valori distinti di Y
         return xCoords.size() == 2 && yCoords.size() == 2;
     }
 

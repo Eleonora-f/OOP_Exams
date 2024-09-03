@@ -3,7 +3,9 @@ package a02c.e2;
 import java.util.*;
 
 public class LogicImpl implements Logic {
-
+    // Esercizio in cui cliccando una cella appare quadrato tutto attorno alla
+    // cella(3x3) e cliccando su uno dei 4 vertici del quadrato, questo si allarga
+    // espandendo il vertice verso l’esterno di una cella
     private List<Pair<Integer, Integer>> stars = new ArrayList<>();
     Pair<Integer, Integer> currPos;
     private int size;
