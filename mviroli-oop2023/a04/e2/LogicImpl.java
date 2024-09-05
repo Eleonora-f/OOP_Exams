@@ -7,8 +7,6 @@ public class LogicImpl implements Logic {
     private List<Pair<Integer, Integer>> stars = new ArrayList<>();
     private Pair<Integer, Integer> currStar = null;
     private Random rnd = new Random();
-    private boolean rightFlag = true;
-    private boolean leftFlag = false;
     private int width;
     private boolean gameOver = false;
 
@@ -62,11 +60,4 @@ public class LogicImpl implements Logic {
     public List<Pair<Integer, Integer>> getStars() {
         return List.copyOf(this.stars);
     }
-    /*
-     * @Override
-     * public Pair<Integer, Integer> getFirstPos() {
-     * return this.firstStar;
-     * }
-     */
-
 }
